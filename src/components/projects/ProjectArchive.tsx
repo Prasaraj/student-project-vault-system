@@ -102,6 +102,7 @@ export const ProjectArchive = ({ user, onViewProject }: ProjectArchiveProps) => 
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
+  const [semesterFilter, setSemesterFilter] = useState("all");
   const [impactFilter, setImpactFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -126,9 +127,10 @@ export const ProjectArchive = ({ user, onViewProject }: ProjectArchiveProps) => 
                          project.advisor.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === "all" || project.type === typeFilter;
     const matchesYear = yearFilter === "all" || project.year === yearFilter;
+    const matchesSemester = semesterFilter === "all" || project.semester === semesterFilter;
     const matchesImpact = impactFilter === "all" || project.impact === impactFilter;
     
-    return matchesSearch && matchesType && matchesYear && matchesImpact;
+    return matchesSearch && matchesType && matchesYear && matchesSemester && matchesImpact;
   });
 
   return (
@@ -159,7 +161,7 @@ export const ProjectArchive = ({ user, onViewProject }: ProjectArchiveProps) => 
       </div>
 
       {/* Search and Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -193,6 +195,17 @@ export const ProjectArchive = ({ user, onViewProject }: ProjectArchiveProps) => 
             <SelectItem value="2024">2024</SelectItem>
             <SelectItem value="2023">2023</SelectItem>
             <SelectItem value="2022">2022</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={semesterFilter} onValueChange={setSemesterFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by semester" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Semesters</SelectItem>
+            <SelectItem value="Fall">Fall</SelectItem>
+            <SelectItem value="Spring">Spring</SelectItem>
           </SelectContent>
         </Select>
 
