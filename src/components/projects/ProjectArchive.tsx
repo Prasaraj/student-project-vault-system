@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Eye, Calendar, User, Award, ExternalLink } from "lucide-react";
+import { Search, Eye, Calendar, User, Award, ExternalLink, Grid, List } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface User {
   id: string;
@@ -134,8 +135,26 @@ export const ProjectArchive = ({ user, onViewProject }: ProjectArchiveProps) => 
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-gray-900">Project Archive</h2>
-        <div className="text-sm text-gray-500">
-          {filteredProjects.length} approved project(s) found
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === "grid" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+            >
+              <List className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="text-sm text-gray-500">
+            {filteredProjects.length} approved project(s) found
+          </div>
         </div>
       </div>
 
@@ -190,84 +209,159 @@ export const ProjectArchive = ({ user, onViewProject }: ProjectArchiveProps) => 
         </Select>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project) => (
-          <Card key={project.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg line-clamp-2">{project.title}</CardTitle>
-                <Badge variant="outline" className="shrink-0 ml-2">
-                  {project.type}
-                </Badge>
-              </div>
-              <CardDescription className="line-clamp-3">
-                {project.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Impact and Year */}
-              <div className="flex justify-between items-center">
-                <Badge className={getImpactColor(project.impact)}>
-                  <Award className="w-3 h-3 mr-1" />
-                  {project.impact} Impact
-                </Badge>
-                <Badge variant="outline">
-                  {project.semester} {project.year}
-                </Badge>
-              </div>
-
-              {/* Project Details */}
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <User className="w-4 h-4 mr-2" />
-                  <span className="line-clamp-1">{project.students.join(", ")}</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <span>
-                    Completed: {new Date(project.completionDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-
-              {/* Keywords */}
-              <div className="flex flex-wrap gap-1">
-                {project.keywords.slice(0, 3).map((keyword, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {keyword}
+      {/* Projects View */}
+      {viewMode === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProjects.map((project) => (
+            <Card key={project.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg line-clamp-2">{project.title}</CardTitle>
+                  <Badge variant="outline" className="shrink-0 ml-2">
+                    {project.type}
                   </Badge>
-                ))}
-                {project.keywords.length > 3 && (
-                  <Badge variant="secondary" className="text-xs">
-                    +{project.keywords.length - 3} more
+                </div>
+                <CardDescription className="line-clamp-3">
+                  {project.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Impact and Year */}
+                <div className="flex justify-between items-center">
+                  <Badge className={getImpactColor(project.impact)}>
+                    <Award className="w-3 h-3 mr-1" />
+                    {project.impact} Impact
                   </Badge>
+                  <Badge variant="outline">
+                    {project.semester} {project.year}
+                  </Badge>
+                </div>
+
+                {/* Project Details */}
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center">
+                    <User className="w-4 h-4 mr-2" />
+                    <span className="line-clamp-1">{project.students.join(", ")}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span>
+                      Completed: {new Date(project.completionDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Keywords */}
+                <div className="flex flex-wrap gap-1">
+                  {project.keywords.slice(0, 3).map((keyword, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {keyword}
+                    </Badge>
+                  ))}
+                  {project.keywords.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{project.keywords.length - 3} more
+                    </Badge>
+                  )}
+                </div>
+
+                {/* External Links */}
+                {project.externalLinks && project.externalLinks.length > 0 && (
+                  <div className="flex items-center text-sm text-blue-600">
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    <span>{project.externalLinks.length} external link(s)</span>
+                  </div>
                 )}
-              </div>
 
-              {/* External Links */}
-              {project.externalLinks && project.externalLinks.length > 0 && (
-                <div className="flex items-center text-sm text-blue-600">
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  <span>{project.externalLinks.length} external link(s)</span>
+                {/* Actions */}
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => onViewProject(project.id)}
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Details
+                  </Button>
                 </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => onViewProject(project.id)}
-                  size="sm"
-                  className="flex-1"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  View Details
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Project Title</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Students</TableHead>
+                <TableHead>Advisor</TableHead>
+                <TableHead>Impact</TableHead>
+                <TableHead>Completion Date</TableHead>
+                <TableHead>Keywords</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredProjects.map((project) => (
+                <TableRow key={project.id}>
+                  <TableCell className="font-medium">
+                    <div className="max-w-xs">
+                      <div className="font-semibold">{project.title}</div>
+                      <div className="text-sm text-gray-600 line-clamp-2">{project.description}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{project.type}</Badge>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <div className="line-clamp-2">{project.students.join(", ")}</div>
+                  </TableCell>
+                  <TableCell>{project.advisor}</TableCell>
+                  <TableCell>
+                    <Badge className={getImpactColor(project.impact)}>
+                      {project.impact}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">
+                      {new Date(project.completionDate).toLocaleDateString()}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {project.semester} {project.year}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1 max-w-xs">
+                      {project.keywords.slice(0, 2).map((keyword, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {keyword}
+                        </Badge>
+                      ))}
+                      {project.keywords.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{project.keywords.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => onViewProject(project.id)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {filteredProjects.length === 0 && (
         <div className="text-center py-12">
