@@ -18,6 +18,7 @@ interface User {
   role: "student" | "lecturer" | "coordinator" | "dean";
   studentId?: string;
   semester?: number;
+  year?: number;
   graduated?: boolean;
 }
 
@@ -35,6 +36,7 @@ const mockUsers = [
     status: "Active",
     studentId: "6831503001",
     semester: 2,
+    year: 2024,
     graduated: false
   },
   { 
@@ -45,6 +47,7 @@ const mockUsers = [
     status: "Active",
     studentId: "6831503002",
     semester: 1,
+    year: 2025,
     graduated: false
   },
   { 
@@ -76,6 +79,7 @@ const mockUsers = [
     status: "Inactive",
     studentId: "6831503003",
     semester: 2,
+    year: 2023,
     graduated: true
   },
 ];
@@ -93,7 +97,8 @@ export const UserManagement = ({ user }: UserManagementProps) => {
     name: "",
     email: "",
     role: "",
-    password: ""
+    password: "",
+    year: ""
   });
 
   const filteredUsers = users.filter(u => {
@@ -139,7 +144,7 @@ export const UserManagement = ({ user }: UserManagementProps) => {
       return;
     }
 
-    const userToAdd = {
+    const userToAdd: any = {
       id: (users.length + 1).toString(),
       name: newUser.name,
       email: newUser.email,
@@ -147,8 +152,12 @@ export const UserManagement = ({ user }: UserManagementProps) => {
       status: "Active"
     };
 
+    if (newUser.role === "student" && newUser.year) {
+      userToAdd.year = parseInt(newUser.year);
+    }
+
     setUsers([...users, userToAdd]);
-    setNewUser({ name: "", email: "", role: "", password: "" });
+    setNewUser({ name: "", email: "", role: "", password: "", year: "" });
     setIsAddUserOpen(false);
     
     toast({
@@ -171,7 +180,8 @@ export const UserManagement = ({ user }: UserManagementProps) => {
       name: userToEdit.name,
       email: userToEdit.email,
       role: userToEdit.role,
-      password: ""
+      password: "",
+      year: userToEdit.year?.toString() || ""
     });
   };
 
@@ -185,14 +195,26 @@ export const UserManagement = ({ user }: UserManagementProps) => {
       return;
     }
 
-    setUsers(users.map(u => 
-      u.id === editingUser.id 
-        ? { ...u, name: newUser.name, email: newUser.email, role: newUser.role as any }
-        : u
-    ));
+    setUsers(users.map(u => {
+      if (u.id === editingUser.id) {
+        const updatedUser: any = { 
+          ...u, 
+          name: newUser.name, 
+          email: newUser.email, 
+          role: newUser.role as any
+        };
+        
+        if (newUser.role === "student" && newUser.year) {
+          updatedUser.year = parseInt(newUser.year);
+        }
+        
+        return updatedUser;
+      }
+      return u;
+    }));
     
     setEditingUser(null);
-    setNewUser({ name: "", email: "", role: "", password: "" });
+    setNewUser({ name: "", email: "", role: "", password: "", year: "" });
     
     toast({
       title: "Success",
@@ -373,7 +395,7 @@ export const UserManagement = ({ user }: UserManagementProps) => {
             if (!open) {
               setIsAddUserOpen(false);
               setEditingUser(null);
-              setNewUser({ name: "", email: "", role: "", password: "" });
+              setNewUser({ name: "", email: "", role: "", password: "", year: "" });
             }
           }}>
             <DialogTrigger asChild>
@@ -420,6 +442,20 @@ export const UserManagement = ({ user }: UserManagementProps) => {
                     </SelectContent>
                   </Select>
                 </div>
+                {newUser.role === "student" && (
+                  <div>
+                    <Label htmlFor="year">Year</Label>
+                    <Input
+                      id="year"
+                      type="number"
+                      value={newUser.year}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, year: e.target.value }))}
+                      placeholder="Enter academic year (e.g., 2024)"
+                      min="2020"
+                      max="2030"
+                    />
+                  </div>
+                )}
                 {!editingUser && (
                   <div>
                     <Label htmlFor="password">Password *</Label>
@@ -438,7 +474,7 @@ export const UserManagement = ({ user }: UserManagementProps) => {
                     onClick={() => {
                       setIsAddUserOpen(false);
                       setEditingUser(null);
-                      setNewUser({ name: "", email: "", role: "", password: "" });
+                      setNewUser({ name: "", email: "", role: "", password: "", year: "" });
                     }}
                   >
                     Cancel
@@ -549,6 +585,7 @@ export const UserManagement = ({ user }: UserManagementProps) => {
                 <TableHead>Role</TableHead>
                 <TableHead>Student ID</TableHead>
                 <TableHead>Semester</TableHead>
+                <TableHead>Year</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -573,6 +610,9 @@ export const UserManagement = ({ user }: UserManagementProps) => {
                   </TableCell>
                   <TableCell>
                     {u.semester || "-"}
+                  </TableCell>
+                  <TableCell>
+                    {u.year || "-"}
                   </TableCell>
                   <TableCell>
                     {u.graduated ? (
