@@ -83,6 +83,9 @@ export const ReportingDashboard = ({ user }: ReportingDashboardProps) => {
             <SelectItem value="2024">2024</SelectItem>
             <SelectItem value="2023">2023</SelectItem>
             <SelectItem value="2022">2022</SelectItem>
+            <SelectItem value="2021">2021</SelectItem>
+            <SelectItem value="2020">2020</SelectItem>
+            <SelectItem value="all">All Years (5-Year View)</SelectItem>
           </SelectContent>
         </Select>
 

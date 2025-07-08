@@ -28,6 +28,7 @@ export const ProjectSubmissionForm = ({ user, onBack }: ProjectSubmissionFormPro
     title: "",
     type: "",
     course: "",
+    teamName: "",
     description: "",
     keywords: [],
     groupMembers: [],
@@ -224,6 +225,16 @@ export const ProjectSubmissionForm = ({ user, onBack }: ProjectSubmissionFormPro
                   value={formData.course}
                   onChange={(e) => setFormData(prev => ({ ...prev, course: e.target.value }))}
                   placeholder="e.g., CS-401 Fall 2024"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="teamName">Team Name</Label>
+                <Input
+                  id="teamName"
+                  value={formData.teamName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, teamName: e.target.value }))}
+                  placeholder="Enter your team name"
                 />
               </div>
 

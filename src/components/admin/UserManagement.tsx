@@ -16,6 +16,9 @@ interface User {
   name: string;
   email: string;
   role: "student" | "lecturer" | "coordinator" | "dean";
+  studentId?: string;
+  semester?: number;
+  graduated?: boolean;
 }
 
 interface UserManagementProps {
@@ -24,12 +27,57 @@ interface UserManagementProps {
 
 // Mock user data
 const mockUsers = [
-  { id: "1", name: "John Student", email: "john@university.edu", role: "student", status: "Active" },
-  { id: "2", name: "Jane Doe", email: "jane@university.edu", role: "student", status: "Active" },
-  { id: "3", name: "Dr. Sarah Lecturer", email: "sarah@university.edu", role: "lecturer", status: "Active" },
-  { id: "4", name: "Prof. Mike Coordinator", email: "mike@university.edu", role: "coordinator", status: "Active" },
-  { id: "5", name: "Dr. Lisa Dean", email: "lisa@university.edu", role: "dean", status: "Active" },
-  { id: "6", name: "Alex Kim", email: "alex@university.edu", role: "student", status: "Inactive" },
+  { 
+    id: "1", 
+    name: "John Student", 
+    email: "john@university.edu", 
+    role: "student", 
+    status: "Active",
+    studentId: "6831503001",
+    semester: 2,
+    graduated: false
+  },
+  { 
+    id: "2", 
+    name: "Jane Doe", 
+    email: "jane@university.edu", 
+    role: "student", 
+    status: "Active",
+    studentId: "6831503002",
+    semester: 1,
+    graduated: false
+  },
+  { 
+    id: "3", 
+    name: "Dr. Sarah Lecturer", 
+    email: "sarah@university.edu", 
+    role: "lecturer", 
+    status: "Active"
+  },
+  { 
+    id: "4", 
+    name: "Prof. Mike Coordinator", 
+    email: "mike@university.edu", 
+    role: "coordinator", 
+    status: "Active"
+  },
+  { 
+    id: "5", 
+    name: "Dr. Lisa Dean", 
+    email: "lisa@university.edu", 
+    role: "dean", 
+    status: "Active"
+  },
+  { 
+    id: "6", 
+    name: "Alex Kim", 
+    email: "alex@university.edu", 
+    role: "student", 
+    status: "Inactive",
+    studentId: "6831503003",
+    semester: 2,
+    graduated: true
+  },
 ];
 
 export const UserManagement = ({ user }: UserManagementProps) => {
@@ -499,6 +547,8 @@ export const UserManagement = ({ user }: UserManagementProps) => {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Student ID</TableHead>
+                <TableHead>Semester</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -519,9 +569,25 @@ export const UserManagement = ({ user }: UserManagementProps) => {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(u.status)}>
-                      {u.status}
-                    </Badge>
+                    {u.studentId || "-"}
+                  </TableCell>
+                  <TableCell>
+                    {u.semester || "-"}
+                  </TableCell>
+                  <TableCell>
+                    {u.graduated ? (
+                      <Badge variant="outline" className="bg-gray-100 text-gray-600">
+                        Graduated (View Only)
+                      </Badge>
+                    ) : u.role === "student" ? (
+                      <Badge variant="default" className="bg-green-100 text-green-800">
+                        Active
+                      </Badge>
+                    ) : (
+                      <Badge className={getStatusColor(u.status)}>
+                        {u.status}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
