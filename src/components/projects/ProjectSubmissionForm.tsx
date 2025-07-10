@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, Plus, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Upload, Plus, X, User, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface User {
@@ -15,6 +16,14 @@ interface User {
   name: string;
   email: string;
   role: "student" | "lecturer" | "coordinator" | "dean";
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "student" | "lecturer";
+  isPrimary: boolean;
 }
 
 interface ProjectSubmissionFormProps {
@@ -46,6 +55,12 @@ export const ProjectSubmissionForm = ({ user, onBack }: ProjectSubmissionFormPro
 
   const [newKeyword, setNewKeyword] = useState("");
   const [newLink, setNewLink] = useState("");
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [newTeamMember, setNewTeamMember] = useState({
+    name: "",
+    email: "",
+    role: "student" as "student" | "lecturer"
+  });
 
   const projectTypes = [
     "Capstone",
@@ -89,6 +104,73 @@ export const ProjectSubmissionForm = ({ user, onBack }: ProjectSubmissionFormPro
     }));
   };
 
+  const addTeamMember = () => {
+    if (!newTeamMember.name.trim() || !newTeamMember.email.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in team member name and email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if email already exists
+    if (teamMembers.some(member => member.email === newTeamMember.email)) {
+      toast({
+        title: "Error",
+        description: "Team member with this email already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newMember: TeamMember = {
+      id: Date.now().toString(),
+      name: newTeamMember.name.trim(),
+      email: newTeamMember.email.trim(),
+      role: newTeamMember.role,
+      isPrimary: false
+    };
+
+    setTeamMembers(prev => [...prev, newMember]);
+    setNewTeamMember({ name: "", email: "", role: "student" });
+  };
+
+  const removeTeamMember = (id: string) => {
+    setTeamMembers(prev => prev.filter(member => member.id !== id));
+  };
+
+  const togglePrimaryStudent = (id: string) => {
+    const primaryStudents = teamMembers.filter(member => member.isPrimary && member.role === "student");
+    const targetMember = teamMembers.find(member => member.id === id);
+    
+    if (targetMember?.role !== "student") {
+      toast({
+        title: "Error",
+        description: "Only students can be designated as primary",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (primaryStudents.length >= 1 && !targetMember?.isPrimary) {
+      toast({
+        title: "Error",
+        description: "Only one student can be designated as primary per project",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTeamMembers(prev => 
+      prev.map(member => 
+        member.id === id 
+          ? { ...member, isPrimary: !member.isPrimary }
+          : member
+      )
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent, isDraft = false) => {
     e.preventDefault();
     
@@ -99,6 +181,19 @@ export const ProjectSubmissionForm = ({ user, onBack }: ProjectSubmissionFormPro
         variant: "destructive",
       });
       return;
+    }
+
+    // Check for primary student only if not saving as draft
+    if (!isDraft && teamMembers.length > 0) {
+      const primaryStudent = teamMembers.find(member => member.isPrimary && member.role === "student");
+      if (!primaryStudent) {
+        toast({
+          title: "Error",
+          description: "Please designate one student as the primary student for this project",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     toast({
@@ -299,6 +394,93 @@ export const ProjectSubmissionForm = ({ user, onBack }: ProjectSubmissionFormPro
                 {renderDynamicFields()}
               </div>
             )}
+
+            {/* Team Member Assignment */}
+            <div>
+              <Label>Team Members</Label>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  <Input
+                    value={newTeamMember.name}
+                    onChange={(e) => setNewTeamMember(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Member name"
+                  />
+                  <Input
+                    value={newTeamMember.email}
+                    onChange={(e) => setNewTeamMember(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="Member email"
+                    type="email"
+                  />
+                  <Select 
+                    value={newTeamMember.role} 
+                    onValueChange={(value: "student" | "lecturer") => 
+                      setNewTeamMember(prev => ({ ...prev, role: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="lecturer">Lecturer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" onClick={addTeamMember} size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Member
+                  </Button>
+                </div>
+
+                {teamMembers.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Click the checkbox to designate the primary student (required)
+                    </p>
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          {member.role === "student" && (
+                            <Checkbox
+                              checked={member.isPrimary}
+                              onCheckedChange={() => togglePrimaryStudent(member.id)}
+                              className="data-[state=checked]:bg-primary"
+                            />
+                          )}
+                          <div className="flex items-center space-x-2">
+                            {member.isPrimary ? (
+                              <UserCheck className="w-4 h-4 text-primary" />
+                            ) : (
+                              <User className="w-4 h-4 text-muted-foreground" />
+                            )}
+                            <div>
+                              <p className="font-medium">{member.name}</p>
+                              <p className="text-sm text-muted-foreground">{member.email}</p>
+                            </div>
+                          </div>
+                          <Badge variant={member.role === "student" ? "default" : "secondary"}>
+                            {member.role}
+                          </Badge>
+                          {member.isPrimary && (
+                            <Badge variant="outline" className="text-primary border-primary">
+                              Primary Student
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeTeamMember(member.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* External Links */}
             <div>
