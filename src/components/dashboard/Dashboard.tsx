@@ -9,6 +9,8 @@ import { UserManagement } from "@/components/admin/UserManagement";
 import { ReportingDashboard } from "@/components/reports/ReportingDashboard";
 import { ProjectDetailView } from "@/components/projects/ProjectDetailView";
 import { RubricManagement } from "@/components/rubrics/RubricManagement";
+import { CourseManagement } from "@/components/courses/CourseManagement";
+import { StudentRosterUpload } from "@/components/courses/StudentRosterUpload";
 
 interface User {
   id: string;
@@ -46,6 +48,10 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
         return <ProjectArchive user={user} onViewProject={setSelectedProject} />;
       case "users":
         return <UserManagement user={user} />;
+      case "courses":
+        return <CourseManagement user={user} />;
+      case "student-roster":
+        return <StudentRosterUpload user={user} />;
       case "reports":
         return <ReportingDashboard user={user} />;
       case "rubrics":

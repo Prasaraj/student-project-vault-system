@@ -8,7 +8,9 @@ import {
   BarChart3,
   FileText,
   Search,
-  ClipboardList
+  ClipboardList,
+  GraduationCap,
+  UserPlus
 } from "lucide-react";
 
 interface User {
@@ -46,6 +48,8 @@ export const Sidebar = ({ user, currentView, onViewChange }: SidebarProps) => {
         return [
           { id: "my-projects", label: "All Projects", icon: BookOpen },
           { id: "users", label: "User Management", icon: Users },
+          { id: "courses", label: "Course Management", icon: GraduationCap },
+          { id: "student-roster", label: "Student Roster", icon: UserPlus },
           { id: "rubrics", label: "Rubric Management", icon: ClipboardList },
           { id: "reports", label: "Reports", icon: BarChart3 },
           ...commonItems,
