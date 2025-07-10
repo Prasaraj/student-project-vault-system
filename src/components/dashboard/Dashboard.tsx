@@ -8,6 +8,7 @@ import { ProjectArchive } from "@/components/projects/ProjectArchive";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { ReportingDashboard } from "@/components/reports/ReportingDashboard";
 import { ProjectDetailView } from "@/components/projects/ProjectDetailView";
+import { RubricManagement } from "@/components/rubrics/RubricManagement";
 
 interface User {
   id: string;
@@ -47,6 +48,8 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
         return <UserManagement user={user} />;
       case "reports":
         return <ReportingDashboard user={user} />;
+      case "rubrics":
+        return <RubricManagement user={user} />;
       default:
         return <MyProjectsView user={user} onViewProject={setSelectedProject} />;
     }

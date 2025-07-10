@@ -7,7 +7,8 @@ import {
   Users, 
   BarChart3,
   FileText,
-  Search
+  Search,
+  ClipboardList
 } from "lucide-react";
 
 interface User {
@@ -45,6 +46,7 @@ export const Sidebar = ({ user, currentView, onViewChange }: SidebarProps) => {
         return [
           { id: "my-projects", label: "All Projects", icon: BookOpen },
           { id: "users", label: "User Management", icon: Users },
+          { id: "rubrics", label: "Rubric Management", icon: ClipboardList },
           { id: "reports", label: "Reports", icon: BarChart3 },
           ...commonItems,
         ];
